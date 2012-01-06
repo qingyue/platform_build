@@ -696,6 +696,9 @@ kernelimage: $(ACP)
 	$(MAKE) -C kernel_imx $(TARGET_KERNEL_DEFCONF) $(KERNEL_ENV)
 	$(MAKE) -C kernel_imx -j$(HOST_PROCESSOR) uImage $(KERNEL_ENV)
 	$(ACP) kernel_imx/arch/arm/boot/uImage $(PRODUCT_OUT)/uImage
+
+	$(MAKE) -C kernel_imx -j$(HOST_PROCESSOR) modules $(KERNEL_ENV)
+	$(MAKE) -C kernel_imx modules_install INSTALL_MOD_PATH=/home/jeazh/android_framework/$(PRODUCT_OUT)/system/
 else
 kernelimage:
 endif
