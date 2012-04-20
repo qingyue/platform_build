@@ -693,6 +693,11 @@ KERNEL_ENV := ARCH=arm CROSS_COMPILE=../$(TARGET_TOOLS_PREFIX)
 HOST_PROCESSOR := $(shell cat /proc/cpuinfo | grep processor | wc -l)
 kernelimage: $(ACP)
 	echo $(HOST_PROCESSOR)
+	$(MAKE) clean -C kernel_imx/initramfs/
+	$(MAKE) -C kernel_imx/initramfs/
+	$(MAKE) -C kernel_imx $(TARGET_KERNEL_INITRAMFS_DEFCONF) $(KERNEL_ENV)
+	$(MAKE) -C kernel_imx -j$(HOST_PROCESSOR) uImage $(KERNEL_ENV)
+	$(ACP) kernel_imx/arch/arm/boot/uImage $(PRODUCT_OUT)/uImage-initramfs
 	$(MAKE) -C kernel_imx $(TARGET_KERNEL_DEFCONF) $(KERNEL_ENV)
 	$(MAKE) -C kernel_imx -j$(HOST_PROCESSOR) uImage $(KERNEL_ENV)
 	$(ACP) kernel_imx/arch/arm/boot/uImage $(PRODUCT_OUT)/uImage
@@ -798,7 +803,12 @@ $(BUILT_SYSTEMIMAGE): $(INTERNAL_SYSTEMIMAGE_FILES) $(INTERNAL_USERIMAGES_DEPS)
 	$(call build-systemimage-target,$@)
 
 INSTALLED_SYSTEMIMAGE := $(PRODUCT_OUT)/system.img
+INSTALLED_URAMDISKIMAGE := $(PRODUCT_OUT)/uramdisk.img
 SYSTEMIMAGE_SOURCE_DIR := $(TARGET_OUT)
+
+$(INSTALLED_URAMDISKIMAGE):
+	@echo ----- Making ramdisk image ------
+	mkimage -A arm -O linux -T ramdisk -C none -a 0x70308000 -n "Android Root Filesystem" -d $(PRODUCT_OUT)/ramdisk.img $(PRODUCT_OUT)/uramdisk.img
 
 # The system partition needs room for the recovery image as well.  We
 # now store the recovery image as a binary patch using the boot image
@@ -823,7 +833,7 @@ $(INSTALLED_SYSTEMIMAGE): $(BUILT_SYSTEMIMAGE) $(RECOVERY_FROM_BOOT_PATCH) | $(A
 	$(copy-file-to-target)
 	$(hide) $(call assert-max-image-size,$@ $(RECOVERY_FROM_BOOT_PATCH),$(BOARD_SYSTEMIMAGE_PARTITION_SIZE),yaffs)
 
-systemimage: $(INSTALLED_SYSTEMIMAGE)
+systemimage: $(INSTALLED_SYSTEMIMAGE) $(INSTALLED_URAMDISKIMAGE)
 
 .PHONY: systemimage-nodeps snod
 systemimage-nodeps snod: $(filter-out systemimage-nodeps snod,$(MAKECMDGOALS)) \
@@ -1011,6 +1021,7 @@ $(BUILT_TARGET_FILES_PACKAGE): \
 		$(INSTALLED_RADIOIMAGE_TARGET) \
 		$(INSTALLED_RECOVERYIMAGE_TARGET) \
 		$(INSTALLED_SYSTEMIMAGE) \
+		$(INSTALLED_URAMDISKIMAGE) \
 		$(INSTALLED_USERDATAIMAGE_TARGET) \
 		$(INSTALLED_ANDROID_INFO_TXT_TARGET) \
 		$(built_ota_tools) \
