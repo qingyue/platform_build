@@ -736,6 +736,7 @@ recoveryimage: $(INSTALLED_RECOVERYIMAGE_TARGET) $(BIN_HELPER) $(LIB_HELPER)
 	cp -f $(TARGET_ROOT_OUT)/init $(TARGET_RECOVERY_ROOT_OUT)/
 	cp -f $(LIB_HELPER) $(TARGET_RECOVERY_ROOT_OUT)/system/lib/
 	$(call build-recoveryimage-target,$(INSTALLED_RECOVERYIMAGE_TARGET))
+	$(call build-uramdiskimage-target)
 else
 recoveryimage:
 endif
@@ -766,6 +767,11 @@ ifeq ($(INTERNAL_USERIMAGES_USE_EXT),true)
 define build-systemimage-target
     @echo "Target system fs image: $(1)"
     $(call build-userimage-ext-target, $(TARGET_OUT),$(1),system,$(INTERNAL_USERIMAGES_EXT_VARIANT),$(BOARD_SYSTEMIMAGE_PARTITION_SIZE))
+endef
+
+define build-uramdiskimage-target
+	@echo ----- Making ramdisk image ------
+	mkimage -A arm -O linux -T ramdisk -C none -a 0x70308000 -n "Android Root Filesystem" -d $(PRODUCT_OUT)/ramdisk.img $(PRODUCT_OUT)/uramdisk.img
 endef
 
 define build-recoveryimage-target
@@ -803,12 +809,8 @@ $(BUILT_SYSTEMIMAGE): $(INTERNAL_SYSTEMIMAGE_FILES) $(INTERNAL_USERIMAGES_DEPS)
 	$(call build-systemimage-target,$@)
 
 INSTALLED_SYSTEMIMAGE := $(PRODUCT_OUT)/system.img
-INSTALLED_URAMDISKIMAGE := $(PRODUCT_OUT)/uramdisk.img
 SYSTEMIMAGE_SOURCE_DIR := $(TARGET_OUT)
 
-$(INSTALLED_URAMDISKIMAGE):
-	@echo ----- Making ramdisk image ------
-	mkimage -A arm -O linux -T ramdisk -C none -a 0x70308000 -n "Android Root Filesystem" -d $(PRODUCT_OUT)/ramdisk.img $(PRODUCT_OUT)/uramdisk.img
 
 # The system partition needs room for the recovery image as well.  We
 # now store the recovery image as a binary patch using the boot image
@@ -833,7 +835,7 @@ $(INSTALLED_SYSTEMIMAGE): $(BUILT_SYSTEMIMAGE) $(RECOVERY_FROM_BOOT_PATCH) | $(A
 	$(copy-file-to-target)
 	$(hide) $(call assert-max-image-size,$@ $(RECOVERY_FROM_BOOT_PATCH),$(BOARD_SYSTEMIMAGE_PARTITION_SIZE),yaffs)
 
-systemimage: $(INSTALLED_SYSTEMIMAGE) $(INSTALLED_URAMDISKIMAGE)
+systemimage: $(INSTALLED_SYSTEMIMAGE)
 
 .PHONY: systemimage-nodeps snod
 systemimage-nodeps snod: $(filter-out systemimage-nodeps snod,$(MAKECMDGOALS)) \
@@ -1021,7 +1023,6 @@ $(BUILT_TARGET_FILES_PACKAGE): \
 		$(INSTALLED_RADIOIMAGE_TARGET) \
 		$(INSTALLED_RECOVERYIMAGE_TARGET) \
 		$(INSTALLED_SYSTEMIMAGE) \
-		$(INSTALLED_URAMDISKIMAGE) \
 		$(INSTALLED_USERDATAIMAGE_TARGET) \
 		$(INSTALLED_ANDROID_INFO_TXT_TARGET) \
 		$(built_ota_tools) \
