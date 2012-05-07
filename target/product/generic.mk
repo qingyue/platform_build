@@ -30,7 +30,6 @@ PRODUCT_PACKAGES := \
     Email \
     Gallery3D \
     LatinIME \
-    Launcher2 \
     Mms \
     Music \
     Provision \
@@ -41,7 +40,8 @@ PRODUCT_PACKAGES := \
     SystemUI \
     Updater \
     CalendarProvider \
-    SyncProvider
+    SyncProvider \
+    OnyxLauncher
 
 $(call inherit-product, $(SRC_TARGET_DIR)/product/core.mk)
 
