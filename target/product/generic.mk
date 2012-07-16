@@ -40,8 +40,7 @@ PRODUCT_PACKAGES := \
     SystemUI \
     Updater \
     CalendarProvider \
-    SyncProvider \
-    OnyxLauncher
+    SyncProvider
 
 $(call inherit-product, $(SRC_TARGET_DIR)/product/core.mk)
 
