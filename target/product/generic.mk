@@ -21,19 +21,14 @@ PRODUCT_PACKAGES := \
     AccountAndSyncSettings \
     DeskClock \
     AlarmProvider \
-    Bluetooth \
     Calculator \
     Calendar \
-    Camera \
     CertInstaller \
     DrmProvider \
     Email \
-    Gallery3D \
     LatinIME \
-    Mms \
     Music \
     Provision \
-    Protips \
     QuickSearchBox \
     Settings \
     Sync \

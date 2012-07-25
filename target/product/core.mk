@@ -24,8 +24,6 @@ PRODUCT_PROPERTY_OVERRIDES := \
 
 PRODUCT_PACKAGES := \
     bouncycastle \
-    com.android.location.provider \
-    com.android.location.provider.xml \
     core \
     core-junit \
     create_test_dmtrace \
@@ -59,7 +57,6 @@ PRODUCT_PACKAGES := \
     Browser \
     Contacts \
     HTMLViewer \
-    Phone \
     ApplicationsProvider \
     ContactsProvider \
     DownloadProvider \
@@ -69,7 +66,6 @@ PRODUCT_PACKAGES := \
     SettingsProvider \
     TelephonyProvider \
     TtsService \
-    VpnServices \
     UserDictionaryProvider \
     PackageInstaller \
     DefaultContainerService \
